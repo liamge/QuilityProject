@@ -6,6 +6,7 @@ import numpy as np
 import seaborn as sns
 
 from scipy.stats import entropy, boxcox, probplot
+from scipy.spatial.distance import cdist
 from src.process import calculate_coherence, train_lda, extract_keywords_tfidf
 from gensim.models import LdaModel, CoherenceModel
 from gensim.corpora import Dictionary
@@ -154,7 +155,7 @@ def plot_correlation_matrix(df, columns):
     plt.title("Correlation Matrix")
     plt.show()
 
-def plot_elbow_curve(ks, X):
+def plot_elbow_curve(ks, X, method='distortion'):
     """
     Calculates the elbow curve for choosing the appropriate
     k for K Means clustering
@@ -162,15 +163,22 @@ def plot_elbow_curve(ks, X):
     X : numpy array or matrix of vectors to cluster
     """
     distorsions = []
+    inertias = []
     for k in ks:
         kmeans = KMeans(n_clusters=k)
         kmeans.fit(X)
-        distorsions.append(kmeans.inertia_)
+        distorsions.append(sum(np.min(cdist(X, kmeans.cluster_centers_, 
+                                            'euclidean'), axis=1)) / X.shape[0])
+        inertias.append(kmeans.inertia_)
 
     fig = plt.figure(figsize=(15, 5))
-    plt.plot(ks, distorsions)
+    if method == 'distortion':
+        plt.plot(ks, distorsions)
+    elif method == 'inertia':
+        plt.plot(ks, inertias)
     plt.grid(True)
     plt.title('Elbow curve')
+    plt.show()
 
 def plot_word_vectors_with_labels(word_vectors_2d, vec_labels, title='2D Word Vectors with Cluster Colors', label="Cluster"):
     """
