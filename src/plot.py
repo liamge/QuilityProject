@@ -184,16 +184,23 @@ def plot_word_vectors_with_labels(word_vectors_2d, vec_labels, title='2D Word Ve
     """
     Plots projected 2d word vectors with clusters
     word_vectors_2d : array of 2d vectors
-    cluster_names : array of the same length as word_vectors_2d of labels for each vector
+    vec_labels : array of labels for each vector
     title : plot title
     """
     # Create a scatter plot
     plt.figure(figsize=(10, 8))
-    plt.scatter(word_vectors_2d[:, 0], word_vectors_2d[:, 1], c=vec_labels)
+    scatter = plt.scatter(word_vectors_2d[:, 0], word_vectors_2d[:, 1], c=vec_labels)
     plt.title(title)
     plt.xlabel('Dimension 1')
     plt.ylabel('Dimension 2')
-    plt.colorbar(label=label)
+
+    # Find the unique cluster labels
+    unique_clusters = np.unique(vec_labels)
+    legend_elements = []
+    for cluster in unique_clusters:
+        legend_elements.append(plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=scatter.to_rgba(cluster), markersize=10))
+
+    plt.legend(legend_elements, unique_clusters, title=label, loc='center left', bbox_to_anchor=(1, 0.5))
     plt.show()
 
 def plot_word_vectors_with_clusters_and_centroids(word_vectors_2d, vec_labels, cluster_keywords, title='2D Word Vectors with Cluster Colors'):
@@ -203,7 +210,7 @@ def plot_word_vectors_with_clusters_and_centroids(word_vectors_2d, vec_labels, c
     """
     # Create a scatter plot
     plt.figure(figsize=(10, 8))
-    plt.scatter(word_vectors_2d[:, 0], word_vectors_2d[:, 1], c=vec_labels, alpha=0.8, edgecolor='k')
+    scatter = plt.scatter(word_vectors_2d[:, 0], word_vectors_2d[:, 1], c=vec_labels, alpha=0.8, edgecolor='k')
     plt.title(title, fontsize=16)
     plt.xlabel('Dimension 1', fontsize=12)
     plt.ylabel('Dimension 2', fontsize=12)
@@ -212,8 +219,7 @@ def plot_word_vectors_with_clusters_and_centroids(word_vectors_2d, vec_labels, c
 
     # Find the unique cluster labels
     unique_clusters = np.unique(vec_labels)
-
-    # Plot centroids and label with cluster keywords
+    legend_elements = []
     for cluster in unique_clusters:
         cluster_points = word_vectors_2d[vec_labels == cluster]
         centroid = np.mean(cluster_points, axis=0)
@@ -224,9 +230,9 @@ def plot_word_vectors_with_clusters_and_centroids(word_vectors_2d, vec_labels, c
             color='black', fontsize=10, ha='center', va='center',
             bbox=dict(facecolor='white', edgecolor='black', boxstyle='round')
         )
+        legend_elements.append(plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=scatter.to_rgba(cluster), markersize=10))
 
-    plt.colorbar(label='Cluster', ticks=unique_clusters)
-    plt.tight_layout()
+    plt.legend(legend_elements, unique_clusters, title='Cluster', loc='center left', bbox_to_anchor=(1, 0.5))
     plt.show()
 
 def plot_word_clouds(informative_words_per_cluster):

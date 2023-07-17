@@ -21,6 +21,12 @@ from gensim.utils import simple_preprocess
 from gensim.models import Phrases, LdaModel, CoherenceModel
 from gensim.corpora import Dictionary
 from multiprocessing import cpu_count
+from nltk.stem import WordNetLemmatizer
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+
+lemmatizer = WordNetLemmatizer()
+nlp = spacy.load('en_core_web_sm')
+sid = SentimentIntensityAnalyzer()
 
 #####################
 # Utility Functions #
@@ -333,7 +339,7 @@ def tokenize(text, stopwords=False):
     else:
         return np.nan
 
-def lemmatize(tokenized_text, lemmatizer):
+def lemmatize(tokenized_text):
     """Lemmatizes a list of tokens"""
     if type(tokenized_text) == list:
         return [lemmatizer.lemmatize(w) for w in tokenized_text]
@@ -378,7 +384,7 @@ def process_price(price):
 # Feature Extraction Functions #
 ################################
 
-def ner(texts, nlp):
+def ner(texts):
     """
     Uses Spacy to perform Named Entity Recognition to extract Named Entities
     texts : list of strings
@@ -388,7 +394,7 @@ def ner(texts, nlp):
     entities = [[(ent.text, ent.label_) for ent in doc.ents] for doc in docs]
     return entities
 
-def sentiment(text, sid):
+def sentiment(text):
     """
     Performs Sentiment Analysis using VADER (due to size and speed)
     text : string
